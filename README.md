@@ -60,7 +60,7 @@ Durante el proceso se implementaron varias estrategias con el objetivo de mejora
 Se probaron múltiples combinaciones en dos clasificadores XGBoost con validación cruzada. La búsqueda tomó varias horas y solo se consiguió una leve mejora en F1-score (~0.5%).
 
 2. **Modelo stacking (meta-modelo de regresión logística sobre dos clasificadores)**
-Aunque se incrementó ligeramente el recall (~5%), se redujo la precision y el resultado global fue inferior en F1 y accuracy respecto al ensamble lineal base.
+Aunque se incrementó ligeramente el recall (~5%), se redujo la precision y el resultado global fue inferior en F1 y accuracy respecto al resultado incial base.
 
 Esas pruebas fueron útiles para delimitar la complejidad necesaria y validar que el modelo actual logra un buen compromiso entre rendimiento y costo computacional.
 
@@ -75,7 +75,7 @@ Esas pruebas fueron útiles para delimitar la complejidad necesaria y validar qu
    - Incorporar métricas de costos asimétricos (por ejemplo, penalizar más los falsos negativos).
 
 3. **Probar técnicas avanzadas de balanceo de clases**  
-   - `SMOTE-Tomek` o `ADASYN` para una generación de muestras más robusta.  
+   - `SMOTE-Tomek`para una generación de muestras más robusta.  
    - `scale_pos_weight` dinámico durante el entrenamiento.  
 
 4. **Reintroducir variables eliminadas (p.ej., `Cloud9am`, `Cloud3pm`)**  
