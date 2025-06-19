@@ -1,4 +1,4 @@
-# 🌧️ # Predicción de Lluvias usando LSTM y XGBoost con el conjunto de datos Australianos
+# 🌧️ Predicción de Lluvias usando LSTM y XGBoost con el conjunto de datos Australianos
 
 Este proyecto implementa y evalúa un modelo híbrido para la predicción de lluvias diarias en Australia, combinando redes neuronales LSTM con XGBoost. Se comparan además los resultados obtenidos con un modelo Transformer, para verificar si el enfoque secuencial clásico (LSTM) es más adecuado en este dominio.
 
