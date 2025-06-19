@@ -1,84 +1,95 @@
-# Predicción de Lluvias usando XGBoost con el conjunto de datos Australianos
+# 🌧️ # Predicción de Lluvias usando LSTM y XGBoost con el conjunto de datos Australianos
 
-Este proyecto reproduce y compara los resultados del paper  
-**“An AI-Enabled ensemble method for rainfall forecasting using LSTM”**,  
-usando únicamente **XGBoost** sobre el dataset público *Rain in Australia*.
+Este proyecto implementa y evalúa un modelo híbrido para la predicción de lluvias diarias en Australia, combinando redes neuronales LSTM con XGBoost. Se comparan además los resultados obtenidos con un modelo Transformer, para verificar si el enfoque secuencial clásico (LSTM) es más adecuado en este dominio.
+
+📄 Basado en los papers:
+**“An AI-Enabled ensemble method for rainfall forecasting using LSTM”**
+**“Research on Rainfall Prediction Based on LSTM and Random Forest”**
 
 ---
 
-## 💡 Definición del problema
+## 💡 Motivación
 
-*"Predecir la lluvia con precisión es un desafío en contextos de alta variabilidad climática como Australia. Este trabajo buscará abordar ese problema mediante el uso de algoritmos de aprendizaje automático aplicados a un conjunto de datos meteorológicos históricos de Australia."*
+Predecir la lluvia con precisión es clave en la planificación agrícola, prevención de desastres y manejo de recursos hídricos. Australia presenta condiciones climáticas altamente variables, lo que representa un desafío para los sistemas de predicción convencionales. Este trabajo busca abordar ese problema utilizando arquitecturas avanzadas de aprendizaje automático con enfoque secuencial.
 
+---
 
 ## 🎯 Objetivos
-| Tipo | Descripción |
-|------|-------------|
-| **General** | Diseñar un modelo de predicción de lluvia basado en XGBoost. |
-| **Específicos** | 1. Identificar variables relevantes.<br>2. Ajustar hiperparámetros y balanceo.<br>3. Evaluar con accuracy, precision, recall y F1.<br>4. Comparar con el estado del arte publicado. |
 
-## ⌨️ Implementación
-Predecir con precisión si lloverá al día siguiente en cualquiera de las 49 estaciones meteorológicas australianas registradas (2008-2017).
-
-
-## ⚙️ Pipeline resumido
-1. **Carga & limpieza**  
-   - Conversión de fechas, estaciones, direcciones a grados.  
-   - Imputación multivariante (`IterativeImputer`).  
-2. **Preprocesado**  
-   - One-Hot para categóricas, escalado z-score para numéricas.  
-3. **Modelos XGBoost**  
-   - `Modelo_A` optimiza precisión.<br>
-   - `Modelo_B` optimiza recall.  
-   - Ensamble lineal \((0.5\,A + 0.5\,B)\).  
-4. **Selección de umbral** sobre el conjunto de validación.  
-5. **Métricas en test** (con datos desbalanceados reales).  
-
-## 📊 Resultados actuales
-
-| Clase                 | Precision | Recall | F1-score | Support |
-|----------------------|-----------|--------|----------|---------|
-| **0 (No lloverá - Paper)**   | 0.89      | 0.96   | 0.93     | 18238   |
-| **1 (Sí lloverá - Paper)**   | 0.96      | 0.89   | 0.92     | 18714   |  
-|                      |           |        |          |         |
-| **0 (No lloverá - Modelo propio)**   | 0.902     | 0.914  | 0.908    | 22064   | 
-| **1 (Sí lloverá - Modelo propio)**   | 0.687     | 0.657  | 0.672    |  6375   |
-
-| Métrica global       | Paper      | Nuestro modelo |
-|----------------------|------------|-----------------|
-| **Accuracy**         | 0.92       | 0.856           |
-| **Macro Avg (F1)**   | 0.92       | 0.790           |
-| **Weighted Avg (F1)**| 0.92       | 0.855           |
-
-> *Nota:* El paper evalúa sobre un conjunto de prueba balanceado con SMOTE, lo que eleva artificialmente las métricas.  
-> El test propio mantiene la distribución original para un escenario más realista.
-
-## 🧪 Técnicas exploradas sin mejora significativa
-Durante el proceso se implementaron varias estrategias con el objetivo de mejorar la predicción de la clase minoritaria ("sí lloverá"). Sin embargo, no presentaron resultados significantes comparados al tiempo que llevó su ejecución:
-
-1. **GridSearchCV para optimización exhaustiva de hiperparámetros**
-Se probaron múltiples combinaciones en dos clasificadores XGBoost con validación cruzada. La búsqueda tomó varias horas y solo se consiguió una leve mejora en F1-score (~0.5%).
-
-2. **Modelo stacking (meta-modelo de regresión logística sobre dos clasificadores)**
-Aunque se incrementó ligeramente el recall (~5%), se redujo la precision y el resultado global fue inferior en F1 y accuracy respecto al resultado incial base.
-
-Esas pruebas fueron útiles para delimitar la complejidad necesaria y validar que el modelo actual logra un buen compromiso entre rendimiento y costo computacional.
-
-## 📈 Próximos pasos
-1. **Reevaluar el balanceo en el conjunto de prueba**  
-   Aunque SMOTE se aplicó correctamente al conjunto de entrenamiento, el paper también balancea el test set, lo cual eleva artificialmente métricas como recall y F1.  
-   → *Decidir si se replica este enfoque para comparación directa o mantener un test realista.*
-
-2. **Optimizar el umbral de decisión para la clase "lluvia"**  
-   Actualmente se usa un ensamble con ajuste de umbral óptimo según F1. Aún así, se puede:  
-   - Explorar la **optimización multiobjetivo** (precisión *vs* recall).  
-   - Incorporar métricas de costos asimétricos (por ejemplo, penalizar más los falsos negativos).
-
-3. **Probar técnicas avanzadas de balanceo de clases**  
-   - `SMOTE-Tomek`para una generación de muestras más robusta.  
-   - `scale_pos_weight` dinámico durante el entrenamiento.  
-
-4. **Reintroducir variables eliminadas (p.ej., `Cloud9am`, `Cloud3pm`)**  
-   Estas columnas fueron descartadas por alto porcentaje de valores nulos. Sin embargo, la imputación múltiple (p. ej., `IterativeImputer`) puede permitir recuperar información útil para la predicción.
+| Tipo         | Descripción                                                                 |
+|--------------|-----------------------------------------------------------------------------|
+| **General**  | Diseñar un modelo híbrido LSTM + XGBoost para predecir lluvia diaria.       |
+| **Específicos** | 1. Evaluar el impacto de combinar aprendizaje profundo (LSTM) con árboles (XGBoost).<br>2. Comparar contra arquitecturas Transformer.<br>3. Analizar el rendimiento de cada modelo usando métricas de clasificación. |
 
 ---
+
+## 📁 Dataset
+
+Se utilizó el conjunto de datos **Rain in Australia**, el cual contiene registros meteorológicos diarios de múltiples estaciones entre 2008 y 2017.
+
+- Fuente: [Kaggle - Rain in Australia](https://www.kaggle.com/jsphyg/weather-dataset-rattle-package)
+- Variable objetivo: `RainTomorrow` (binaria: *sí* / *no*)
+
+---
+
+## ⚙️ Pipeline de Implementación
+
+1. **Carga y preprocesamiento**
+   - Conversión de variables categóricas (direcciones de viento) a grados.
+   - Limpieza y eliminación de columnas con demasiados valores nulos.
+   - Imputación de valores faltantes eliminada para simplificación experimental.
+2. **Balanceo**
+   - Se aplica **SMOTE** sobre el conjunto de entrenamiento para balancear clases.
+3. **Normalización**
+   - Estándar (z-score) con `StandardScaler`.
+4. **Modelado**
+   - **LSTM**: Secuencia univariada con múltiples capas.
+   - **XGBoost**: Dos modelos: uno como regresor (probabilidad), otro como clasificador.
+   - **Fusión híbrida**: Predicciones promediadas y ponderadas para clasificación final.
+5. **Comparación**
+   - Se entrenó un modelo **Transformer** equivalente para establecer un nuevo benchmark.
+
+---
+
+## 📊 Resultados
+
+### 🔁 Modelo Híbrido (LSTM + XGBoost)
+
+```text
+              precision    recall  f1-score   support
+
+           0       0.85      0.98      0.91     17534
+           1       0.98      0.83      0.90     17629
+
+    accuracy                           0.91     35163
+   macro avg       0.92      0.91      0.91     35163
+weighted avg       0.92      0.91      0.91     35163
+```
+
+### 🧠 Transformer
+
+```text
+              precision    recall  f1-score   support
+
+  No Lloverá       0.80      0.94      0.86     17522
+  Sí Lloverá       0.93      0.76      0.83     17640
+
+    accuracy                           0.85     35162
+   macro avg       0.86      0.85      0.85     35162
+weighted avg       0.86      0.85      0.85     35162
+```
+
+## 📌 Conclusiones
+
+- El modelo **LSTM + XGBoost** obtiene la mejor combinación general de métricas:
+  - `Accuracy` del **91%**
+  - `F1-score` macro de **0.91**
+  - `Recall` más alto para la clase *Sí lloverá*
+
+- El **Transformer** demuestra un desempeño competitivo:
+  - `Precision` para la clase *Sí lloverá* de **0.93**, incluso mayor que el modelo híbrido.
+  - Sin embargo, su `recall` para esa clase cae a **0.76**, lo que indica más falsos negativos.
+
+- Si se prioriza evitar **falsos positivos**, el Transformer puede ser una opción válida.
+
+🔎 **Conclusión general**: El modelo **híbrido LSTM + XGBoost** ofrece un **mejor equilibrio** y **mayor confiabilidad** para tareas de predicción de lluvia diaria.
